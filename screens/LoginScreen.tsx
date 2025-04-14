@@ -1,4 +1,6 @@
 import React, { useState, useEffect } from "react";
+import { signInWithEmailAndPassword } from "firebase/auth";
+import { auth } from "../scripts/firebaseConfig";
 import {
   View,
   TextInput,
@@ -21,9 +23,13 @@ export default function LoginScreen({ onLogin }: { onLogin: () => void }) {
   const passwordSlide = new Animated.Value(100); // Start off-screen (below)
   const buttonSlide = new Animated.Value(100); // Start off-screen (below)
 
-  const handleLogin = () => {
-    // Simulate login (You would authenticate with Firebase here)
-    onLogin(); // Proceed to Home Screen after login
+  const handleLogin = async () => {
+    try {
+      await signInWithEmailAndPassword(auth, email, password);
+      onLogin(); // Go to home screen only after successful login
+    } catch (error) {
+      alert("Invalid credentials. Access denied.");
+    }
   };
 
   // Start the animations when the screen loads
