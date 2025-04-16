@@ -20,14 +20,17 @@ export default function HomeScreen({ onViewRecords }: HomeScreenProps) {
   const [latestRecords, setLatestRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchLatestRecords = () => {
+    setLoading(true);
     const dbRef = ref(db, "latest_faces");
     onValue(dbRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
         const records = Object.entries(data).map(
           ([cameraId, recordsData]: any) => {
-            const latestRecord = recordsData[Object.keys(recordsData)[0]];
+            const keys = Object.keys(recordsData);
+            const lastKey = keys[keys.length - 1]; // most recent
+            const latestRecord = recordsData[lastKey];
             return { cameraId, ...latestRecord };
           }
         );
@@ -35,6 +38,10 @@ export default function HomeScreen({ onViewRecords }: HomeScreenProps) {
       }
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    fetchLatestRecords();
   }, []);
 
   return (
@@ -47,6 +54,12 @@ export default function HomeScreen({ onViewRecords }: HomeScreenProps) {
         <Text style={styles.title}>Guard Vision</Text>
         <View style={styles.placeholder} />
       </View>
+
+      {/* Refresh Button */}
+      <TouchableOpacity style={styles.refreshButton} onPress={fetchLatestRecords}>
+        <Ionicons name="refresh" size={18} color="#34495e" />
+        <Text style={styles.refreshText}>Refresh</Text>
+      </TouchableOpacity>
 
       {/* Loader or Records */}
       {loading ? (
@@ -100,7 +113,7 @@ const styles = StyleSheet.create({
     paddingHorizontal: 18,
     paddingVertical: 12,
     borderRadius: 14,
-    marginBottom: 24,
+    marginBottom: 14,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
     shadowOpacity: 0.15,
@@ -114,6 +127,29 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     width: 26,
+  },
+  refreshButton: {
+    flexDirection: "row",
+    alignSelf: "flex-end",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    marginBottom: 16,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  refreshText: {
+    marginLeft: 6,
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#34495e",
   },
   recordCard: {
     backgroundColor: "#ffffff",

@@ -24,16 +24,21 @@ export default function CameraDetailsScreen({
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
 
-  useEffect(() => {
+  const fetchRecords = () => {
+    setLoading(true);
     const dbRef = ref(db, `latest_faces/${cameraId}`);
     onValue(dbRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const cameraRecords = Object.values(data).reverse(); // most recent first
+        const cameraRecords = Object.values(data).reverse();
         setRecords(cameraRecords);
       }
       setLoading(false);
     });
+  };
+
+  useEffect(() => {
+    fetchRecords();
   }, [cameraId]);
 
   return (
@@ -47,7 +52,13 @@ export default function CameraDetailsScreen({
         <View style={styles.placeholder} />
       </View>
 
-      {/* Content */}
+      {/* Refresh Button */}
+      <TouchableOpacity style={styles.refreshButton} onPress={fetchRecords}>
+        <Ionicons name="refresh" size={18} color="#34495e" />
+        <Text style={styles.refreshText}>Refresh</Text>
+      </TouchableOpacity>
+
+      {/* Loader or Records */}
       {loading ? (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color="#34495e" />
@@ -110,7 +121,7 @@ const styles = StyleSheet.create({
     paddingVertical: 12,
     paddingHorizontal: 20,
     borderRadius: 14,
-    marginBottom: 24,
+    marginBottom: 14,
     elevation: 4,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 4 },
@@ -126,6 +137,29 @@ const styles = StyleSheet.create({
   },
   placeholder: {
     width: 26,
+  },
+  refreshButton: {
+    flexDirection: "row",
+    alignSelf: "flex-end",
+    alignItems: "center",
+    backgroundColor: "#fff",
+    paddingVertical: 6,
+    paddingHorizontal: 12,
+    borderRadius: 10,
+    marginBottom: 16,
+    borderColor: "#ccc",
+    borderWidth: 1,
+    shadowColor: "#000",
+    shadowOffset: { width: 0, height: 2 },
+    shadowOpacity: 0.08,
+    shadowRadius: 4,
+    elevation: 2,
+  },
+  refreshText: {
+    marginLeft: 6,
+    fontSize: 14,
+    fontWeight: "500",
+    color: "#34495e",
   },
   recordCard: {
     backgroundColor: "#fff",
