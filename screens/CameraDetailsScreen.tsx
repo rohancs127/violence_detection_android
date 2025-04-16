@@ -23,13 +23,14 @@ export default function CameraDetailsScreen({
 }: CameraDetailsScreenProps) {
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
+  
 
   useEffect(() => {
     const dbRef = ref(db, `latest_faces/${cameraId}`);
     onValue(dbRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const cameraRecords = Object.values(data);
+        const cameraRecords = Object.values(data).reverse();
         setRecords(cameraRecords);
       }
       setLoading(false);
