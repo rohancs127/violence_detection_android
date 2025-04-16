@@ -42,29 +42,34 @@ export default function HomeScreen({ onViewRecords }: HomeScreenProps) {
       {/* Navbar */}
       <View style={styles.navbar}>
         <TouchableOpacity onPress={onViewRecords}>
-          <Ionicons name="menu" size={30} color="#fff" />
+          <Ionicons name="menu" size={26} color="#fff" />
         </TouchableOpacity>
-        <Text style={styles.title}>Violence Detection</Text>
+        <Text style={styles.title}>Guard Vision</Text>
         <View style={styles.placeholder} />
       </View>
 
-      {/* Loading or Records */}
+      {/* Loader or Records */}
       {loading ? (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color="#34495e" />
-          <Text style={styles.loadingText}>Loading records...</Text>
+          <Text style={styles.loadingText}>Fetching live feed...</Text>
         </View>
       ) : latestRecords.length > 0 ? (
         latestRecords.map((record, index) => (
-          <View key={index} style={styles.recordContainer}>
+          <View key={index} style={styles.recordCard}>
+            <Text style={styles.cameraId}>📷 Camera {record.cameraId}</Text>
             <Text style={styles.timestamp}>
-              Camera {record.cameraId} -{" "}
               {new Date(record.timestamp).toLocaleString()}
             </Text>
             <Text style={styles.violenceStatus}>
-              Violence Detected: {record.violence ? "Yes" : "No"}
+              🚨 Violence Detected:{" "}
+              <Text style={{ fontWeight: "bold" }}>
+                {record.violence ? "Yes" : "No"}
+              </Text>
             </Text>
-            <Text style={styles.weaponInfo}>Weapon: {record.weapon}</Text>
+            <Text style={styles.weaponInfo}>
+              🗡️ Weapon Detected: {record.weapon}
+            </Text>
             <Image
               source={{ uri: `data:image/jpeg;base64,${record.image_base64}` }}
               style={styles.image}
@@ -72,7 +77,10 @@ export default function HomeScreen({ onViewRecords }: HomeScreenProps) {
           </View>
         ))
       ) : (
-        <Text style={styles.noDataText}>No data available.</Text>
+        <View style={styles.emptyState}>
+          <Ionicons name="cloud-offline" size={48} color="#ccc" />
+          <Text style={styles.noDataText}>No recent activity to show</Text>
+        </View>
       )}
     </ScrollView>
   );
@@ -81,78 +89,73 @@ export default function HomeScreen({ onViewRecords }: HomeScreenProps) {
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f2f5f9",
     padding: 20,
-    backgroundColor: "#f0f4f8",
   },
   navbar: {
     flexDirection: "row",
     justifyContent: "space-between",
     alignItems: "center",
     backgroundColor: "#34495e",
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 10,
-    marginBottom: 20,
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 14,
+    marginBottom: 24,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
+    elevation: 5,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 20,
+    fontWeight: "700",
     color: "#fff",
-    textAlign: "center",
   },
   placeholder: {
-    width: 30,
+    width: 26,
   },
-  recordContainer: {
-    backgroundColor: "#fff",
+  recordCard: {
+    backgroundColor: "#ffffff",
     padding: 20,
-    marginBottom: 15,
-    borderRadius: 20,
+    marginBottom: 18,
+    borderRadius: 18,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 6 },
-    shadowOpacity: 0.1,
-    shadowRadius: 12,
-    elevation: 6,
-    marginVertical: 10,
+    shadowOffset: { width: 0, height: 5 },
+    shadowOpacity: 0.07,
+    shadowRadius: 10,
+    elevation: 4,
     borderWidth: 1,
-    borderColor: "#e0e0e0",
-    overflow: "hidden",
+    borderColor: "#e2e2e2",
   },
-  timestamp: {
-    fontSize: 16,
-    color: "#333",
-    marginBottom: 8,
+  cameraId: {
+    fontSize: 17,
     fontWeight: "600",
-  },
-  violenceStatus: {
-    fontSize: 16,
-    color: "#ff3b3b",
-    fontWeight: "600",
+    color: "#2c3e50",
     marginBottom: 6,
   },
+  timestamp: {
+    fontSize: 15,
+    color: "#555",
+    marginBottom: 6,
+  },
+  violenceStatus: {
+    fontSize: 15,
+    color: "#c0392b",
+    marginBottom: 4,
+  },
   weaponInfo: {
-    fontSize: 16,
-    color: "#000",
-    marginBottom: 12,
+    fontSize: 15,
+    color: "#2d3436",
+    marginBottom: 10,
   },
   image: {
     width: "100%",
     height: 220,
     borderRadius: 12,
-    marginTop: 10,
     borderWidth: 1,
-    borderColor: "#f0f0f0",
-    marginBottom: 12,
-  },
-  noDataText: {
-    fontSize: 18,
-    color: "#aaa",
-    textAlign: "center",
-    marginTop: 50,
+    borderColor: "#e0e0e0",
+    marginTop: 8,
   },
   loaderContainer: {
     marginTop: 60,
@@ -160,8 +163,19 @@ const styles = StyleSheet.create({
     justifyContent: "center",
   },
   loadingText: {
-    marginTop: 12,
+    marginTop: 14,
     fontSize: 16,
-    color: "#555",
+    color: "#666",
+  },
+  noDataText: {
+    marginTop: 12,
+    fontSize: 17,
+    color: "#aaa",
+    textAlign: "center",
+  },
+  emptyState: {
+    alignItems: "center",
+    justifyContent: "center",
+    marginTop: 80,
   },
 });

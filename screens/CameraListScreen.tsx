@@ -1,10 +1,15 @@
 import React, { useState, useEffect } from "react";
-import { View, Text, TouchableOpacity, StyleSheet, ScrollView } from "react-native";
+import {
+  View,
+  Text,
+  TouchableOpacity,
+  StyleSheet,
+  ScrollView,
+} from "react-native";
 import { getDatabase, ref, onValue } from "firebase/database";
 import { db } from "../scripts/firebaseConfig";
-import { Ionicons } from "@expo/vector-icons"; // Using Ionicons for the back button icon
+import { Ionicons } from "@expo/vector-icons";
 
-// Define the types for the props
 interface CameraListScreenProps {
   onBack: () => void;
   onCameraSelect: (cameraId: string) => void;
@@ -23,7 +28,7 @@ export default function CameraListScreen({
     onValue(dbRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const cameraList = Object.keys(data); // Get all camera IDs (keys)
+        const cameraList = Object.keys(data);
         setCameras(cameraList);
       }
     });
@@ -31,29 +36,35 @@ export default function CameraListScreen({
 
   return (
     <ScrollView style={styles.container}>
-      {/* Navbar with Icon and Title */}
+      {/* Navbar */}
       <View style={styles.navbar}>
         <TouchableOpacity onPress={onBack}>
-          <Ionicons name="arrow-back" size={30} color="#fff" />
+          <Ionicons name="arrow-back" size={26} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.title}>Available Cameras</Text>
         <View style={styles.placeholder} />
       </View>
 
-      {/* List of cameras */}
+      {/* Camera Cards */}
       {cameras.length > 0 ? (
         cameras.map((cameraId, index) => (
-          <View key={index} style={styles.cameraItem}>
-            <TouchableOpacity
-              style={styles.cameraButton}
-              onPress={() => onCameraSelect(cameraId)} // Pass cameraId to handleCameraSelect
-            >
+          <TouchableOpacity
+            key={index}
+            onPress={() => onCameraSelect(cameraId)}
+            style={styles.cardWrapper}
+          >
+            <View style={styles.cameraCard}>
+              <Ionicons name="videocam" size={24} color="#34495e" />
               <Text style={styles.cameraText}>Camera {cameraId}</Text>
-            </TouchableOpacity>
-          </View>
+              <Ionicons name="chevron-forward" size={20} color="#ccc" />
+            </View>
+          </TouchableOpacity>
         ))
       ) : (
-        <Text style={styles.noDataText}>No cameras available.</Text>
+        <View style={styles.emptyState}>
+          <Ionicons name="eye-off" size={48} color="#ccc" />
+          <Text style={styles.noDataText}>No cameras available</Text>
+        </View>
       )}
 
       {/* Logout Button */}
@@ -69,87 +80,88 @@ export default function CameraListScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f2f5f9",
     padding: 20,
-    backgroundColor: "#f0f4f8",
   },
   navbar: {
     flexDirection: "row",
     alignItems: "center",
-    backgroundColor: "#34495e", // Navbar background color
-    paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 12,
-    marginBottom: 20,
+    justifyContent: "space-between",
+    backgroundColor: "#34495e",
+    paddingHorizontal: 18,
+    paddingVertical: 12,
+    borderRadius: 14,
+    marginBottom: 24,
+    elevation: 4,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "bold",
+    fontSize: 20,
+    fontWeight: "700",
     color: "#fff",
     textAlign: "center",
     flex: 1,
   },
   placeholder: {
-    width: 30, // Placeholder for the back button
+    width: 26,
   },
-  cameraItem: {
-    marginBottom: 15,
-    padding: 10,
-    borderRadius: 10,
-    backgroundColor: "#fff",
-    shadowColor: "#000",
-    shadowOffset: { width: 0, height: 4 },
-    shadowOpacity: 0.1,
-    shadowRadius: 6,
-    elevation: 4,
-    borderWidth: 1,
-    borderColor: "#e0e0e0",
+  cardWrapper: {
+    marginBottom: 16,
   },
-  cameraButton: {
-    backgroundColor: "#34495e", // Button background color
-    paddingVertical: 15,
-    paddingHorizontal: 20,
-    borderRadius: 12,
+  cameraCard: {
+    flexDirection: "row",
     alignItems: "center",
-    justifyContent: "center",
+    backgroundColor: "#ffffff",
+    paddingVertical: 16,
+    paddingHorizontal: 20,
+    borderRadius: 16,
+    elevation: 3,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 2 },
-    shadowOpacity: 0.1,
-    shadowRadius: 4,
-    elevation: 2,
+    shadowOffset: { width: 0, height: 3 },
+    shadowOpacity: 0.07,
+    shadowRadius: 8,
+    borderWidth: 1,
+    borderColor: "#e3e3e3",
+    justifyContent: "space-between",
   },
   cameraText: {
-    fontSize: 17,
+    fontSize: 16,
+    color: "#2c3e50",
     fontWeight: "500",
-    color: "#fff",
+    flex: 1,
+    marginLeft: 12,
   },
   noDataText: {
-    fontSize: 18,
-    color: "#aaa",
+    fontSize: 16,
+    color: "#999",
+    marginTop: 14,
     textAlign: "center",
-    marginTop: 50,
+  },
+  emptyState: {
+    marginTop: 80,
+    alignItems: "center",
   },
   logoutContainer: {
-    marginTop: 30,
+    marginTop: 40,
     alignItems: "center",
   },
   logoutButton: {
-    backgroundColor: "#e74c3c", // Red background for logout
-    paddingVertical: 15,
-    paddingHorizontal: 25,
+    backgroundColor: "#e74c3c",
+    paddingVertical: 14,
+    paddingHorizontal: 32,
     borderRadius: 12,
+    elevation: 2,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 2,
   },
   logoutText: {
-    fontSize: 17,
-    fontWeight: "500",
     color: "#fff",
+    fontSize: 17,
+    fontWeight: "600",
   },
 });

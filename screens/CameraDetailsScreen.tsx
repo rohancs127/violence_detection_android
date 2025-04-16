@@ -23,14 +23,13 @@ export default function CameraDetailsScreen({
 }: CameraDetailsScreenProps) {
   const [records, setRecords] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
-  
 
   useEffect(() => {
     const dbRef = ref(db, `latest_faces/${cameraId}`);
     onValue(dbRef, (snapshot) => {
       const data = snapshot.val();
       if (data) {
-        const cameraRecords = Object.values(data).reverse();
+        const cameraRecords = Object.values(data).reverse(); // most recent first
         setRecords(cameraRecords);
       }
       setLoading(false);
@@ -39,16 +38,16 @@ export default function CameraDetailsScreen({
 
   return (
     <ScrollView style={styles.container}>
-      {/* Navbar */}
+      {/* Header */}
       <View style={styles.navbar}>
         <TouchableOpacity onPress={onBack}>
-          <Ionicons name="arrow-back" size={30} color="#fff" />
+          <Ionicons name="arrow-back" size={26} color="#fff" />
         </TouchableOpacity>
         <Text style={styles.title}>Camera {cameraId} - Records</Text>
         <View style={styles.placeholder} />
       </View>
 
-      {/* Loader or Records */}
+      {/* Content */}
       {loading ? (
         <View style={styles.loaderContainer}>
           <ActivityIndicator size="large" color="#34495e" />
@@ -56,14 +55,22 @@ export default function CameraDetailsScreen({
         </View>
       ) : records.length > 0 ? (
         records.map((record, index) => (
-          <View key={index} style={styles.recordContainer}>
-            <Text style={styles.timestamp}>
-              {new Date(record.timestamp).toLocaleString()}
-            </Text>
+          <View key={index} style={styles.recordCard}>
+            <View style={styles.metaRow}>
+              <Ionicons name="calendar" size={18} color="#666" />
+              <Text style={styles.timestamp}>
+                {new Date(record.timestamp).toLocaleString()}
+              </Text>
+            </View>
             <Text style={styles.violenceStatus}>
-              Violence Detected: {record.violence ? "Yes" : "No"}
+              🚨 Violence Detected:{" "}
+              <Text style={{ fontWeight: "bold" }}>
+                {record.violence ? "Yes" : "No"}
+              </Text>
             </Text>
-            <Text style={styles.weaponInfo}>Weapon: {record.weapon}</Text>
+            <Text style={styles.weaponInfo}>
+              🗡️ Weapon Detected: {record.weapon}
+            </Text>
             <Image
               source={{ uri: `data:image/jpeg;base64,${record.image_base64}` }}
               style={styles.image}
@@ -71,9 +78,12 @@ export default function CameraDetailsScreen({
           </View>
         ))
       ) : (
-        <Text style={styles.noDataText}>
-          No records available for this camera.
-        </Text>
+        <View style={styles.emptyState}>
+          <Ionicons name="alert-circle-outline" size={48} color="#ccc" />
+          <Text style={styles.noDataText}>
+            No records available for this camera.
+          </Text>
+        </View>
       )}
 
       {/* Back Button */}
@@ -89,63 +99,67 @@ export default function CameraDetailsScreen({
 const styles = StyleSheet.create({
   container: {
     flex: 1,
+    backgroundColor: "#f2f5f9",
     padding: 20,
-    backgroundColor: "#f0f4f8",
   },
   navbar: {
     flexDirection: "row",
     alignItems: "center",
+    justifyContent: "space-between",
     backgroundColor: "#34495e",
+    paddingVertical: 12,
     paddingHorizontal: 20,
-    paddingVertical: 10,
-    borderRadius: 12,
-    marginBottom: 20,
+    borderRadius: 14,
+    marginBottom: 24,
+    elevation: 4,
     shadowColor: "#000",
-    shadowOffset: { width: 0, height: 3 },
-    shadowOpacity: 0.2,
-    shadowRadius: 4,
+    shadowOffset: { width: 0, height: 4 },
+    shadowOpacity: 0.15,
+    shadowRadius: 6,
   },
   title: {
-    fontSize: 18,
-    fontWeight: "bold",
-    color: "#fff",
-    textAlign: "center",
     flex: 1,
+    textAlign: "center",
+    fontSize: 18,
+    fontWeight: "700",
+    color: "#fff",
   },
   placeholder: {
-    width: 30,
+    width: 26,
   },
-  recordContainer: {
+  recordCard: {
     backgroundColor: "#fff",
+    borderRadius: 16,
     padding: 20,
-    marginBottom: 15,
-    borderRadius: 20,
+    marginBottom: 20,
+    elevation: 3,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 6 },
     shadowOpacity: 0.1,
     shadowRadius: 12,
-    elevation: 6,
-    marginVertical: 10,
     borderWidth: 1,
     borderColor: "#e0e0e0",
-    overflow: "hidden",
+  },
+  metaRow: {
+    flexDirection: "row",
+    alignItems: "center",
+    marginBottom: 8,
   },
   timestamp: {
-    fontSize: 16,
+    fontSize: 15,
     color: "#333",
-    marginBottom: 8,
+    marginLeft: 6,
     fontWeight: "600",
   },
   violenceStatus: {
-    fontSize: 16,
-    color: "#ff3b3b",
-    fontWeight: "600",
-    marginBottom: 6,
+    fontSize: 15,
+    color: "#c0392b",
+    marginBottom: 4,
   },
   weaponInfo: {
-    fontSize: 16,
-    color: "#000",
-    marginBottom: 12,
+    fontSize: 15,
+    color: "#2d3436",
+    marginBottom: 10,
   },
   image: {
     width: "100%",
@@ -153,14 +167,27 @@ const styles = StyleSheet.create({
     borderRadius: 12,
     marginTop: 10,
     borderWidth: 1,
-    borderColor: "#f0f0f0",
-    marginBottom: 12,
+    borderColor: "#eee",
+  },
+  loaderContainer: {
+    marginTop: 60,
+    alignItems: "center",
+  },
+  loadingText: {
+    marginTop: 12,
+    fontSize: 16,
+    color: "#555",
+  },
+  emptyState: {
+    marginTop: 60,
+    alignItems: "center",
+    justifyContent: "center",
   },
   noDataText: {
-    fontSize: 18,
-    color: "#aaa",
+    fontSize: 17,
+    color: "#999",
+    marginTop: 10,
     textAlign: "center",
-    marginTop: 50,
   },
   backButtonContainer: {
     marginTop: 30,
@@ -168,29 +195,19 @@ const styles = StyleSheet.create({
   },
   backButton: {
     backgroundColor: "#34495e",
-    paddingVertical: 15,
+    paddingVertical: 14,
     paddingHorizontal: 30,
     borderRadius: 12,
+    elevation: 2,
     shadowColor: "#000",
     shadowOffset: { width: 0, height: 2 },
     shadowOpacity: 0.1,
     shadowRadius: 4,
-    elevation: 2,
-    marginBottom: 50,
+    marginBottom: 40,
   },
   backButtonText: {
-    fontSize: 18,
-    fontWeight: "500",
+    fontSize: 17,
+    fontWeight: "600",
     color: "#fff",
-  },
-  loaderContainer: {
-    marginTop: 60,
-    alignItems: "center",
-    justifyContent: "center",
-  },
-  loadingText: {
-    marginTop: 12,
-    fontSize: 16,
-    color: "#555",
   },
 });
