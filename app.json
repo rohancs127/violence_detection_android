@@ -1,7 +1,7 @@
 {
   "expo": {
     "name": "Guard Vision",
-    "slug": "guard-vision",
+    "slug": "violence_detection_android",
     "version": "1.0.0",
     "orientation": "portrait",
     "icon": "./assets/images/icon.png",
